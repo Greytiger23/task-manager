@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import styles from "./page.module.css";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function Home() {
   return (
@@ -15,10 +17,11 @@ export default function Home() {
         />
         <ol>
           <li>
-            Get started by editing <code>src/app/page.tsx</code>.
+            Get started by editing task manager <code>src/app/page.tsx</code>.
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
+        
 
         <div className={styles.ctas}>
           <a
