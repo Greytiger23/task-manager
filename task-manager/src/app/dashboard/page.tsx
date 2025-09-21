@@ -35,7 +35,7 @@ export default function DashboardPage() {
             >
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
-            <h1 className="text-xl font-bold text-gray-900">Task Manager</h1>
+            <h1 className="text-xl font-bold items-center text-gray-900">Task Manager</h1>
           </div>
 
           <div className="flex items-center gap-2">

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview TaskItem component for displaying individual tasks
+ * Provides functionality for task completion, editing, and deletion
+ * AI-Enhanced: Added comprehensive documentation and type safety
+ */
+
 'use client'
 
 import { useState } from 'react'
@@ -10,7 +16,11 @@ import { database } from '@/lib/database'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { Pencil, Trash2, Calendar, Clock } from 'lucide-react'
 
+/**
+ * Props for the TaskItem component
+ */
 interface TaskItemProps {
+  /** The task object with optional category information */
   task: Task & {
     categories?: {
       id: string
@@ -18,15 +28,36 @@ interface TaskItemProps {
       color: string
     }
   }
+  /** Callback function called when task edit is requested */
   onEdit: (task: Task) => void
+  /** Callback function called when task deletion is requested */
   onDelete: (taskId: string) => void
+  /** Callback function called when task completion status changes */
   onToggleComplete: (taskId: string, completed: boolean) => void
 }
 
+/**
+ * TaskItem Component
+ * 
+ * Displays an individual task with the following features:
+ * - Task completion toggle with checkbox
+ * - Task title and description display
+ * - Category badge with color coding
+ * - Due date and reminder date display
+ * - Edit and delete action buttons
+ * - Loading states during operations
+ * 
+ * @param props - The component props
+ * @returns JSX element representing a task item
+ */
 export function TaskItem({ task, onEdit, onDelete, onToggleComplete }: TaskItemProps) {
   const { user } = useAuth()
   const [isUpdating, setIsUpdating] = useState(false)
 
+  /**
+   * Handles toggling the completion status of a task
+   * Updates the task in the database and calls the parent callback
+   */
   const handleToggleComplete = async () => {
     if (!user || isUpdating) return
 

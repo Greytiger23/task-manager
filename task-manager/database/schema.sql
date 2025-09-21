@@ -1,6 +1,3 @@
--- Enable Row Level Security
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
-
 -- Create profiles table (extends auth.users)
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
@@ -107,14 +104,13 @@ CREATE TRIGGER tasks_updated_at
   FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 
 -- Create function to handle new user profile creation
-CREATE OR REPLACE FUNCTION handle_new_user()
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, email, full_name)
+  INSERT INTO public.profiles (id, email, full_name)
   VALUES (
     NEW.id,
-    NEW.email,
-    NEW.raw_user_meta_data->>'full_name'
+    NEW.email
   );
   RETURN NEW;
 END;
