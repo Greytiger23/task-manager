@@ -7,12 +7,12 @@ import React from 'react'
 import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AuthProvider, useAuth } from '@/components/auth/AuthProvider'
-import { supabase } from '@/lib/supabase'
+import { auth } from '@/lib/auth'
 import { mockUser, mockSupabaseError } from '../../../__tests__/utils/test-utils'
 
-// Mock Supabase
-jest.mock('@/lib/supabase')
-const mockSupabase = supabase as jest.Mocked<typeof supabase>
+// Mock auth module
+jest.mock('@/lib/auth')
+const mockAuth = auth as jest.Mocked<typeof auth>
 
 // Test component to access auth context
 const TestComponent = () => {
@@ -37,10 +37,16 @@ const TestComponent = () => {
 describe('AuthProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    
+    // Setup default mocks
+    mockAuth.getSession.mockResolvedValue({ session: null, error: null })
+    mockAuth.onAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: jest.fn() } }
+    } as any)
   })
 
   it('should render children and provide auth context', () => {
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
 
@@ -56,8 +62,8 @@ describe('AuthProvider', () => {
     expect(screen.getByText('Sign Out')).toBeInTheDocument()
   })
 
-  it('should show loading state initially', () => {
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+  it('should show loading state initially', async () => {
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
 
@@ -70,13 +76,14 @@ describe('AuthProvider', () => {
     expect(screen.getByText('Loading')).toBeInTheDocument()
   })
 
-  it('should handle successful sign in', async () => {
+  it('should handle sign in successfully', async () => {
     const user = userEvent.setup()
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
-    mockSupabase.auth.signInWithPassword.mockResolvedValue({
-      data: { user: mockUser, session: null },
+    mockAuth.signIn.mockResolvedValue({
+      data: { user: mockUser },
       error: null
     } as any)
 
@@ -90,24 +97,18 @@ describe('AuthProvider', () => {
     await user.click(signInButton)
 
     await waitFor(() => {
-      expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password'
-      })
+      expect(mockAuth.signIn).toHaveBeenCalledWith('test@example.com', 'password')
     })
   })
 
   it('should handle sign in error', async () => {
-    const user = userEvent.setup()
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+    const user = userEvent.setup()
     
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
-    mockSupabase.auth.signInWithPassword.mockResolvedValue({
-      data: { user: null, session: null },
-      error: mockSupabaseError
-    } as any)
+    mockAuth.signIn.mockRejectedValue(mockSupabaseError)
 
     render(
       <AuthProvider>
@@ -125,13 +126,14 @@ describe('AuthProvider', () => {
     consoleSpy.mockRestore()
   })
 
-  it('should handle successful sign up', async () => {
+  it('should handle sign up successfully', async () => {
     const user = userEvent.setup()
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
-    mockSupabase.auth.signUp.mockResolvedValue({
-      data: { user: mockUser, session: null },
+    mockAuth.signUp.mockResolvedValue({
+      data: { user: mockUser },
       error: null
     } as any)
 
@@ -145,24 +147,18 @@ describe('AuthProvider', () => {
     await user.click(signUpButton)
 
     await waitFor(() => {
-      expect(mockSupabase.auth.signUp).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password'
-      })
+      expect(mockAuth.signUp).toHaveBeenCalledWith('test@example.com', 'password')
     })
   })
 
   it('should handle sign up error', async () => {
-    const user = userEvent.setup()
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+    const user = userEvent.setup()
     
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
-    mockSupabase.auth.signUp.mockResolvedValue({
-      data: { user: null, session: null },
-      error: mockSupabaseError
-    } as any)
+    mockAuth.signUp.mockRejectedValue(mockSupabaseError)
 
     render(
       <AuthProvider>
@@ -180,12 +176,13 @@ describe('AuthProvider', () => {
     consoleSpy.mockRestore()
   })
 
-  it('should handle sign out', async () => {
+  it('should handle sign out successfully', async () => {
     const user = userEvent.setup()
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
-    mockSupabase.auth.signOut.mockResolvedValue({
+    mockAuth.signOut.mockResolvedValue({
       error: null
     } as any)
 
@@ -199,20 +196,18 @@ describe('AuthProvider', () => {
     await user.click(signOutButton)
 
     await waitFor(() => {
-      expect(mockSupabase.auth.signOut).toHaveBeenCalled()
+      expect(mockAuth.signOut).toHaveBeenCalled()
     })
   })
 
   it('should handle sign out error', async () => {
-    const user = userEvent.setup()
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+    const user = userEvent.setup()
     
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } }
     } as any)
-    mockSupabase.auth.signOut.mockResolvedValue({
-      error: mockSupabaseError
-    } as any)
+    mockAuth.signOut.mockRejectedValue(mockSupabaseError)
 
     render(
       <AuthProvider>
@@ -233,7 +228,7 @@ describe('AuthProvider', () => {
   it('should update user state on auth state change', async () => {
     let authStateCallback: (event: string, session: any) => void
 
-    mockSupabase.auth.onAuthStateChange.mockImplementation((callback) => {
+    mockAuth.onAuthStateChange.mockImplementation((callback) => {
       authStateCallback = callback
       return {
         data: { subscription: { unsubscribe: jest.fn() } }
@@ -267,7 +262,7 @@ describe('AuthProvider', () => {
 
   it('should cleanup subscription on unmount', () => {
     const unsubscribeMock = jest.fn()
-    mockSupabase.auth.onAuthStateChange.mockReturnValue({
+    mockAuth.onAuthStateChange.mockReturnValue({
       data: { subscription: { unsubscribe: unsubscribeMock } }
     } as any)
 
@@ -283,12 +278,14 @@ describe('AuthProvider', () => {
   })
 
   it('should throw error when useAuth is used outside AuthProvider', () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
+    // Create a component that uses useAuth outside of provider
+    const TestComponentOutside = () => {
+      const { user } = useAuth()
+      return <div>{user?.email}</div>
+    }
 
     expect(() => {
-      render(<TestComponent />)
+      render(<TestComponentOutside />)
     }).toThrow('useAuth must be used within an AuthProvider')
-
-    consoleSpy.mockRestore()
   })
 })

@@ -54,15 +54,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    await auth.signIn(email, password)
+    try {
+      await auth.signIn(email, password)
+    } catch (error) {
+      console.error('Sign in error:', error)
+    }
   }
 
   const signUp = async (email: string, password: string) => {
-    await auth.signUp(email, password)
+    try {
+      await auth.signUp(email, password)
+    } catch (error) {
+      console.error('Sign up error:', error)
+    }
   }
 
   const signOut = async () => {
-    await auth.signOut()
+    try {
+      await auth.signOut()
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
   }
 
   const value = {
