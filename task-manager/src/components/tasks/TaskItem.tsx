@@ -14,7 +14,9 @@ import { Badge } from '@/components/ui/badge'
 import { Task } from '@/lib/supabase'
 import { database } from '@/lib/database'
 import { useAuth } from '@/components/auth/AuthProvider'
-import { Pencil, Trash2, Calendar, Clock } from 'lucide-react'
+import { Pencil, Trash2, Calendar, Clock, AlertCircle } from 'lucide-react'
+import { handleSupabaseError } from '@/lib/error-handler'
+import { useToast } from '@/components/ui/Toast'
 
 /**
  * Props for the TaskItem component
@@ -48,34 +50,80 @@ interface TaskItemProps {
  * - Loading states during operations
  * 
  * @param props - The component props
- * @returns JSX element representing a task item
+ * @returns JSX element representing the task item
  */
 export function TaskItem({ task, onEdit, onDelete, onToggleComplete }: TaskItemProps) {
   const { user } = useAuth()
-  const [isUpdating, setIsUpdating] = useState(false)
+  const { error: showError, success: showSuccess } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
+  const [operationError, setOperationError] = useState<string | null>(null)
 
   /**
-   * Handles toggling the completion status of a task
-   * Updates the task in the database and calls the parent callback
+   * Handles toggling task completion status
+   * AI-Enhanced: Added comprehensive error handling and user feedback
    */
   const handleToggleComplete = async () => {
-    if (!user || isUpdating) return
+    if (!user || isLoading) return
 
-    setIsUpdating(true)
+    setIsLoading(true)
+    setOperationError(null)
+    
     try {
-      const { error } = await database.tasks.toggleComplete(
-        task.id,
-        !task.completed,
-        user.id
-      )
+      const { error } = await database.tasks.toggleComplete(task.id, user.id)
       
-      if (!error) {
-        onToggleComplete(task.id, !task.completed)
+      if (error) {
+        const appError = handleSupabaseError(error, 'Updating task status')
+        setOperationError(appError.message)
+        showError('Failed to update task', appError.message)
+      } else {
+        const newStatus = !task.completed
+        onToggleComplete(task.id, newStatus)
+        showSuccess(
+          newStatus ? 'Task completed!' : 'Task marked as incomplete',
+          `"${task.title}" has been ${newStatus ? 'completed' : 'marked as incomplete'}`
+        )
       }
     } catch (error) {
-      console.error('Error toggling task completion:', error)
+      const appError = handleSupabaseError(error as Error, 'Updating task status')
+      setOperationError(appError.message)
+      showError('Failed to update task', appError.message)
     } finally {
-      setIsUpdating(false)
+      setIsLoading(false)
+    }
+  }
+
+  const handleEdit = () => {
+    if (isLoading) return
+    onEdit(task)
+  }
+
+  const handleDelete = async () => {
+    if (!user || isLoading) return
+    
+    if (!confirm(`Are you sure you want to delete "${task.title}"?`)) {
+      return
+    }
+
+    setIsLoading(true)
+    setOperationError(null)
+    
+    try {
+      const { error } = await database.tasks.delete(task.id, user.id)
+      
+      if (error) {
+        const appError = handleSupabaseError(error, 'Deleting task')
+        setOperationError(appError.message)
+        showError('Failed to delete task', appError.message)
+      } else {
+        onDelete(task.id)
+        showSuccess('Task deleted', `"${task.title}" has been deleted`)
+      }
+    } catch (error) {
+      const appError = handleSupabaseError(error as Error, 'Deleting task')
+      setOperationError(appError.message)
+      showError('Failed to delete task', appError.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 

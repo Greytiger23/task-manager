@@ -10,7 +10,9 @@ import { TaskForm } from './TaskForm'
 import { Task, Category } from '@/lib/supabase'
 import { database } from '@/lib/database'
 import { useAuth } from '@/components/auth/AuthProvider'
-import { Plus, Search, Filter } from 'lucide-react'
+import { Plus, Search, Filter, AlertCircle } from 'lucide-react'
+import { handleSupabaseError } from '@/lib/error-handler'
+import { useToast } from '@/components/ui/Toast'
 
 interface TaskListProps {
   selectedCategoryId?: string
@@ -18,9 +20,11 @@ interface TaskListProps {
 
 export function TaskList({ selectedCategoryId }: TaskListProps) {
   const { user } = useAuth()
+  const { showError, showSuccess } = useToast()
   const [tasks, setTasks] = useState<Task[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadingError, setLoadingError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'completed'>('all')
   const [sortBy, setSortBy] = useState<'created_at' | 'due_date' | 'priority'>('created_at')
@@ -38,17 +42,25 @@ export function TaskList({ selectedCategoryId }: TaskListProps) {
     if (!user) return
 
     setIsLoading(true)
+    setLoadingError(null)
     try {
       const { data, error } = selectedCategoryId
         ? await database.tasks.getByCategory(selectedCategoryId, user.id)
         : await database.tasks.getAll(user.id)
 
-      if (!error && data) {
+      if (error) {
+        const appError = handleSupabaseError(error, 'Loading tasks')
+        setLoadingError(appError.message)
+        showError('Failed to load tasks', appError.message)
+      } else if (data) {
         setTasks(data)
       }
     } catch (error) {
-      console.error('Error loading tasks:', error)
-    } finally {
+      const appError = handleSupabaseError(error as Error, 'Loading tasks')
+      setLoadingError(appError.message)
+      showError('Failed to load tasks', appError.message)
+    }
+    finally {
       setIsLoading(false)
     }
   }
@@ -58,11 +70,15 @@ export function TaskList({ selectedCategoryId }: TaskListProps) {
 
     try {
       const { data, error } = await database.categories.getAll(user.id)
-      if (!error && data) {
+      if (error) {
+        const appError = handleSupabaseError(error, 'Loading categories')
+        showError('Failed to load categories', appError.message)
+      } else if (data) {
         setCategories(data)
       }
     } catch (error) {
-      console.error('Error loading categories:', error)
+      const appError = handleSupabaseError(error as Error, 'Loading categories')
+      showError('Failed to load categories', appError.message)
     }
   }
 
@@ -71,8 +87,10 @@ export function TaskList({ selectedCategoryId }: TaskListProps) {
       setTasks(prev => prev.map(task => 
         task.id === savedTask.id ? savedTask : task
       ))
+      showSuccess('Task updated successfully')
     } else {
       setTasks(prev => [savedTask, ...prev])
+      showSuccess('Task created successfully')
     }
     setIsFormOpen(false)
     setEditingTask(null)
@@ -88,11 +106,16 @@ export function TaskList({ selectedCategoryId }: TaskListProps) {
 
     try {
       const { error } = await database.tasks.delete(taskId, user.id)
-      if (!error) {
+      if (error) {
+        const appError = handleSupabaseError(error, 'Deleting task')
+        showError('Failed to delete task', appError.message)
+      } else {
         setTasks(prev => prev.filter(task => task.id !== taskId))
+        showSuccess('Task deleted successfully')
       }
     } catch (error) {
-      console.error('Error deleting task:', error)
+      const appError = handleSupabaseError(error as Error, 'Deleting task')
+      showError('Failed to delete task', appError.message)
     }
   }
 

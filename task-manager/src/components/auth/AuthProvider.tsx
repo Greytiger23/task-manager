@@ -7,12 +7,16 @@ import { auth } from '@/lib/auth'
 interface AuthContextType {
   user: User | null
   loading: boolean
+  signIn: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  signIn: async () => {},
+  signUp: async () => {},
   signOut: async () => {},
 })
 
@@ -49,6 +53,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  const signIn = async (email: string, password: string) => {
+    await auth.signIn(email, password)
+  }
+
+  const signUp = async (email: string, password: string) => {
+    await auth.signUp(email, password)
+  }
+
   const signOut = async () => {
     await auth.signOut()
   }
@@ -56,6 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = {
     user,
     loading,
+    signIn,
+    signUp,
     signOut,
   }
 
