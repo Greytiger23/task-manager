@@ -110,7 +110,8 @@ BEGIN
   INSERT INTO public.profiles (id, email, full_name)
   VALUES (
     NEW.id,
-    NEW.email
+    NEW.email,
+    ''
   );
   RETURN NEW;
 END;

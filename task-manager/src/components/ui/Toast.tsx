@@ -182,12 +182,13 @@ export function ToastContainer({
   position = 'top-right' 
 }: ToastContainerProps) {
   const [mounted, setMounted] = useState(false)
+  const [toats, setToasts] = useState([]);
   
   useEffect(() => {
     setMounted(true)
   }, [])
   
-  if (!mounted || toasts.length === 0) {
+  if (!mounted || toats.length === 0) {
     return null
   }
   

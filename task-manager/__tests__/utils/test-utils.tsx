@@ -60,17 +60,8 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 }
 
 const AllTheProviders = ({ children, user = mockUser }: { children: React.ReactNode; user?: User | null }) => {
-  // Mock the AuthProvider context value
-  const mockAuthContext = {
-    user,
-    loading: false,
-    signIn: jest.fn(),
-    signUp: jest.fn(),
-    signOut: jest.fn(),
-  }
-
   return (
-    <AuthProvider value={mockAuthContext}>
+    <AuthProvider>
       {children}
     </AuthProvider>
   )

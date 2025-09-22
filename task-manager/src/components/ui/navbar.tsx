@@ -26,7 +26,7 @@ export default function Navbar() {
           <Link href="/auth/login">
             <Button variant="ghost">Sign In</Button>
           </Link>
-          <Link href="/auth/signup">
+          <Link href="/dashboard">
             <Button>Get Started</Button>
           </Link>
         </div>
