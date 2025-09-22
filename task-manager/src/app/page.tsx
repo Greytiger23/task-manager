@@ -8,16 +8,13 @@ import Navbar from '@/components/ui/navbar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckSquare, Users, Calendar, Zap } from 'lucide-react'
 import Link from 'next/link'
+import './homepage.css'
+import './page.module.css'
 
 export default function HomePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard')
-    }
-  }, [user, loading, router])
 
   if (loading) {
     return (
@@ -34,17 +31,15 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-   
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col justify-center pt-24">
-      <div className="max-w-7xl mx-auto px-6 py-16">
+    <div className="content-container">
+      <div className="header-section">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">Task Manager</h1>
+          <h1 className="header">Task Manager</h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Organize your tasks, boost your productivity, and achieve your goals with our intuitive task management system.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/auth/signup">
+          <div className="buttons-group">
+            <Link href="/dashboard">
               <Button size="lg" className="w-full sm:w-auto px-8 py-4">
                 Get Started
               </Button>
@@ -55,10 +50,9 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
-        </div>
 
         {/* Features Section */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="features-grid">
           {/* Feature Card */}
           {[
             {
@@ -99,7 +93,7 @@ export default function HomePage() {
         </div>
 
         {/* Call to Action Section */}
-        <div className="flex justify-center mb-12">
+        <div className="cta-box">
           <div className="max-w-2xl w-full bg-white p-8 rounded-lg shadow-lg text-center space-y-4">
             <h2 className="text-3xl font-bold mb-4">Ready to get organized?</h2>
             <p className="text-gray-600 mb-6">

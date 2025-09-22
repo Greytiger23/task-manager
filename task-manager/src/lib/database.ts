@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import { supabase, Task, Category, Profile } from './supabase'
+import { supabase, Task, Category } from './supabase'
 
 /**
  * Main database interface providing organized access to all database operations.

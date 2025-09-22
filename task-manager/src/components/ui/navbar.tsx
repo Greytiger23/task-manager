@@ -11,7 +11,7 @@ export default function Navbar() {
         <Link href="/">
           <div className="flex items-center space-x-2 cursor-pointer">
             <Image
-              src="/logo.svg" // Path to your logo in the public directory
+              src="flower-green-svgrepo-com.svg"
               alt="Logo"
               width={32}
               height={32}
