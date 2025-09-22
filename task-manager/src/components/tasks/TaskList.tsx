@@ -228,7 +228,7 @@ export function TaskList({ selectedCategoryId }: TaskListProps) {
         </div>
 
         <div className="flex gap-2">
-          <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+          <Select value={filterStatus} onValueChange={(value: 'all' | 'pending' | 'completed') => setFilterStatus(value)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -239,7 +239,7 @@ export function TaskList({ selectedCategoryId }: TaskListProps) {
             </SelectContent>
           </Select>
 
-          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+          <Select value={sortBy} onValueChange={(value: 'created_at' | 'due_date' | 'priority') => setSortBy(value)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>

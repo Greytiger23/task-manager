@@ -1,4 +1,4 @@
-const nextJest = require('next/jest')
+import nextJest from 'next/jest';
 
 /** @type {import('jest').Config} */
 const createJestConfig = nextJest({

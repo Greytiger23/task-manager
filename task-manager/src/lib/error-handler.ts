@@ -30,7 +30,7 @@ export interface AppError {
   message: string
   originalError?: Error | PostgrestError
   code?: string
-  details?: Record<string, any>
+  details?: Record<string, string | number | boolean | null>
 }
 
 /**
@@ -107,7 +107,7 @@ export function handleSupabaseError(
           message: ERROR_MESSAGES[ErrorType.DATABASE],
           originalError: error,
           code: postgrestError.code,
-          details: { context }
+          details: { context: context || null }
         }
     }
   }
@@ -135,7 +135,7 @@ export function handleSupabaseError(
     type: ErrorType.UNKNOWN,
     message: ERROR_MESSAGES[ErrorType.UNKNOWN],
     originalError: error,
-    details: { context }
+    details: { context: context || null }
   }
 }
 
@@ -204,7 +204,7 @@ export async function safeExecute<T>(
  * @returns AppError if validation fails, null if valid
  */
 export function validateRequiredFields(
-  data: Record<string, any>,
+  data: Record<string, string | number | boolean | null | undefined>,
   requiredFields: string[]
 ): AppError | null {
   const missingFields = requiredFields.filter(field => 
@@ -215,7 +215,7 @@ export function validateRequiredFields(
     return {
       type: ErrorType.VALIDATION,
       message: `Please fill in all required fields: ${missingFields.join(', ')}`,
-      details: { missingFields }
+      details: { missingFields: missingFields.join(', ') }
     }
   }
 

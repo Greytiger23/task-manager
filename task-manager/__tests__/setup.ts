@@ -94,7 +94,22 @@ jest.mock('@/lib/database', () => ({
 // Mock auth module
 jest.mock('@/lib/auth', () => ({
   auth: {
-    getSession: jest.fn().mockResolvedValue({ session: null, error: null }),
+    getSession: jest.fn().mockResolvedValue({ 
+      session: { 
+        user: {
+          id: 'test-user-id',
+          email: 'test@example.com',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          aud: 'authenticated',
+          role: 'authenticated',
+          email_confirmed_at: '2024-01-01T00:00:00Z',
+          app_metadata: {},
+          user_metadata: {},
+        }
+      }, 
+      error: null 
+    }),
     signIn: jest.fn().mockResolvedValue({ data: { user: mockSupabaseClient.auth.user }, error: null }),
     signUp: jest.fn().mockResolvedValue({ data: { user: mockSupabaseClient.auth.user }, error: null }),
     signOut: jest.fn().mockResolvedValue({ error: null }),

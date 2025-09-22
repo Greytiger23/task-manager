@@ -9,9 +9,11 @@ import userEvent from '@testing-library/user-event'
 import { AuthProvider, useAuth } from '@/components/auth/AuthProvider'
 import { auth } from '@/lib/auth'
 import { mockUser, mockSupabaseError } from '../../../__tests__/utils/test-utils'
+import { beforeEach } from '@jest/globals'
 
 // Mock auth module
-jest.mock('@/lib/auth')
+import { jest } from '@jest/globals';
+jest.mock('@/lib/auth');
 const mockAuth = auth as jest.Mocked<typeof auth>
 
 // Test component to access auth context
@@ -33,6 +35,8 @@ const TestComponent = () => {
     </div>
   )
 }
+
+import { describe } from '@jest/globals';
 
 describe('AuthProvider', () => {
   beforeEach(() => {
