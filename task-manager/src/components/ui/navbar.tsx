@@ -9,7 +9,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo and App Title */}
         <Link href="/">
-          <div className="flex items-center space-x-2 cursor-pointer">
+          <div className="flex items-center space-x-3 cursor-pointer">
             <Image
               src="flower-green-svgrepo-com.svg"
               alt="Logo"
@@ -17,18 +17,28 @@ export default function Navbar() {
               height={32}
               className="h-8 w-8"
             />
-            <span className="text-2xl font-bold text-gray-800">Task Manager</span>
+            <span className="text-2xl font-bold text-gray-800">Task</span>
           </div>
         </Link>
 
         {/* Buttons */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-5">
           <Link href="/auth/login">
-            <Button variant="ghost">Sign In</Button>
+            <Button className="text-gray-800 hover:bg-gray-100">Login</Button>
           </Link>
-          <Link href="/dashboard">
-            <Button>Get Started</Button>
-          </Link>
+          <div>
+            <Link href="/profile">
+                <Button className="text-gray-800 hover:bg-gray-100">
+                    Profile
+                </Button>
+            </Link>
+            <Link href="/logout">
+                <Button className="text-gray-800 hover:bg-gray-100">Logout</Button>
+            </Link>
+            <Link href="/dashboard">
+                <Button>Get Started</Button>
+            </Link>
+            </div>
         </div>
       </div>
     </nav>
