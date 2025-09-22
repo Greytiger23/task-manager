@@ -44,12 +44,12 @@ export default function HomePage() {
             Organize your tasks, boost your productivity, and achieve your goals with our intuitive task management system.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/dashboard">
+            <Link href="/auth/signup">
               <Button size="lg" className="w-full sm:w-auto px-8 py-4">
                 Get Started
               </Button>
             </Link>
-            <Link href="/dashboard">
+            <Link href="/auth/login">
               <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 py-4">
                 Sign In
               </Button>
